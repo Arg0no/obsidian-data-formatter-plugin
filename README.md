@@ -20,23 +20,6 @@ Data Formatter scans your vault for notes marked with `publish: true` in their f
 
 ---
 
-## Installation
-
-### Manual
-
-1. Download the latest release files (`main.js`, `manifest.json`, `styles.css` if present) from the [Releases](../../releases) page.
-2. In your vault, create the folder `.obsidian/plugins/data-formatter/`.
-3. Copy the downloaded files into that folder.
-4. In Obsidian, go to **Settings → Community plugins**, disable Safe mode if prompted, and enable **Data Formatter**.
-
-### BRAT (Beta Reviewers Auto-update Tool)
-
-1. Install the [BRAT plugin](https://github.com/TfTHacker/obsidian42-brat) from the Community plugins directory.
-2. In BRAT settings, click **Add Beta Plugin** and paste this repository URL.
-3. Enable Data Formatter in **Settings → Community plugins**.
-
----
-
 ## Usage
 
 ### 1. Mark notes for export
