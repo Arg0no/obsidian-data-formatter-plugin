@@ -2,10 +2,10 @@
 	"id": "data-formatter",
 	"name": "Data Formatter",
 	"version": "1.0.0",
-	"minAppVersion": "1.0.0",
-	"description": "Converts every published notes into a .json file (DO NOT SUPPORT IMAGE ![[image]], CALLOUT > [!NOTE], TAGS #tag)",
+	"minAppVersion": "1.4.0",
+	"description": "Converts every published notes into a .json file (DO NOT SUPPORT IMAGE ![[image]], CALLOUT > [!NOTE], TAGS #tag).",
 	"author": "Argono",
-	"authorUrl": "https://github.com/Arg0no/obsidian-data-formatter-plugin",
+	"authorUrl": "https://github.com/Arg0no",
 	"fundingUrl": "",
 	"isDesktopOnly": true
 }
