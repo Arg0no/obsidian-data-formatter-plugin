@@ -1,92 +1,128 @@
-# Obsidian Sample Plugin
+# Data Formatter
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+> Export your Obsidian notes as a single structured JSON file — ready to consume in any web project.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+---
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
+## What it does
 
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and outputs a Notice on click.
-- Registers a global interval which logs 'setInterval' to the console.
+Data Formatter scans your vault for notes marked with `publish: true` in their frontmatter and bundles them into a single JSON file at a destination of your choice. Every exported note includes its full frontmatter and content, making it easy to power blogs, portfolios, documentation sites, or any custom web app with your Obsidian knowledge base.
 
-## First time developing plugins?
+---
 
-Quick starting guide for new plugin devs:
+## Features
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `src/main.ts` to `main.js`.
-- Make changes to `src/main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+- ✅ Selective export via `publish: true` frontmatter property
+- ✅ Full frontmatter included in each exported note
+- ✅ Full note content exported in Markdown and HTML
+- ✅ All publishable notes compiled into a single JSON file
+- ✅ Configurable output destination via the plugin settings tab
 
-## Releasing new releases
+---
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+## Installation
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+### Manual
 
-## Adding your plugin to the community plugin list
+1. Download the latest release files (`main.js`, `manifest.json`, `styles.css` if present) from the [Releases](../../releases) page.
+2. In your vault, create the folder `.obsidian/plugins/data-formatter/`.
+3. Copy the downloaded files into that folder.
+4. In Obsidian, go to **Settings → Community plugins**, disable Safe mode if prompted, and enable **Data Formatter**.
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+### BRAT (Beta Reviewers Auto-update Tool)
 
-## How to use
+1. Install the [BRAT plugin](https://github.com/TfTHacker/obsidian42-brat) from the Community plugins directory.
+2. In BRAT settings, click **Add Beta Plugin** and paste this repository URL.
+3. Enable Data Formatter in **Settings → Community plugins**.
 
-- Clone this repo.
-- Make sure your NodeJS is at least v18 (`node --version`).
-- `npm i` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+---
 
-## Manually installing the plugin
+## Usage
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+### 1. Mark notes for export
 
-## Improve code quality with eslint
+Add `publish: true` to any note's frontmatter:
 
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code.
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
+```yaml
+---
+title: My Article
+date: 2024-06-01
+tags: [web, obsidian]
+publish: true
+---
 
-## Funding URL
+Your note content here.
+```
 
-You can include funding URLs where people who use your plugin can financially support it.
+Notes **without** `publish: true` (or with `publish: false`) are ignored entirely.
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+### 2. Set the output destination
+
+Go to **Settings → Data Formatter** and set the **Output path** — either an absolute path on your system or a path relative to your vault root.
+
+Example:
+```
+/Users/you/my-website/src/data/notes.json
+```
+
+### 3. Run the export
+
+Open the Command Palette (`Ctrl/Cmd + P`) and run:
+
+```
+Data Formatter: Export notes to JSON
+```
+
+Your `notes.json` file will be created (or overwritten) at the configured destination.
+
+---
+
+## Output format
+
+The plugin generates a single JSON file containing an array of note objects. Each object includes all frontmatter fields plus the raw note content.
 
 ```json
 {
-	"fundingUrl": "https://buymeacoffee.com"
+    "lastUpdated":"AAAA-MM-DD",
+    "count":1,
+    "notes": [
+        {
+            "id":"slugified basename",
+            "title":"basename",
+            "wordCount":568,
+            "contentMD": "your content in md",
+            "contentHTML": "your content in html",
+            "properties": {
+				your frontmatter 
+            },
+            "links": [
+                your links
+            ],
+            "lastUpdated":"AAAA-MM-DD"
+        }
+    ]
 }
 ```
 
-If you have multiple URLs, you can also do:
+The `content` field holds the full Markdown body of the note (everything below the frontmatter block).
 
-```json
-{
-	"fundingUrl": {
-		"Buy Me a Coffee": "https://buymeacoffee.com",
-		"GitHub Sponsor": "https://github.com/sponsors",
-		"Patreon": "https://www.patreon.com/"
-	}
-}
-```
+---
 
-## API Documentation
+## Settings
 
-See https://docs.obsidian.md
+| Setting | Description | Default |
+|---|---|---|
+| **Output path** | Absolute or vault-relative path where `notes.json` will be written | *(empty — must be set)* |
+
+---
+
+## Limitations
+
+This is an initial release. The following are **not yet supported**:
+
+- **Images and attachments** — embedded images or files are not exported or referenced in the JSON output.
+- **Callouts** — Obsidian callout blocks (e.g. `> [!note]`) are exported as raw Markdown text, without any special parsing or transformation.
+- **Tags** — inline tags (e.g. `#mytag` in the body) are not extracted or normalised; only frontmatter fields are included.
+- **Incremental export** — every export is a full rebuild; only changed notes are not selectively updated.
+
+---
