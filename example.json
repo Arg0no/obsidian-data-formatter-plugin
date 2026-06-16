@@ -6,8 +6,8 @@
             "id":"rimbell",
             "title":"Rimbell",
             "wordCount":568,
-            "content-md": "",
-            "content-html": "",
+            "contentMD": "",
+            "contentHTML": "",
             "properties": {
                 "type": "lieu",
                 "parent": "terre-de-sarmelune"
@@ -22,8 +22,8 @@
             "id":"cathedrale-d'aethern",
             "title":"Cathédrale d'Aethern",
             "wordCount":126,
-            "content-md":"",
-            "content-html":"",
+            "contentMD":"",
+            "contentHTML":"",
             "properties":{
                 "type":"lieu",
                 "parent":"rimbell"

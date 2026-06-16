@@ -1,97 +1,55 @@
 import {
-	Editor,
-	MarkdownView,
-	MarkdownFileInfo,
-	Modal,
+	FileSystemAdapter,
 	Notice,
 	Plugin,
 } from 'obsidian';
+
+import * as path from 'path';
+
 import {
 	DEFAULT_SETTINGS,
 	DataFormatterPluginSettings,
 	DataFormatterSettingTab,
 } from './settings';
 
-// Remember to rename these classes and interfaces!
+import { 
+	JsonFileFormat 
+} from './JsonFileFormat';
+
+import { 
+	JsonFileManager 
+} from './fileManager';
+
+import { 
+	marked 
+} from "marked";
 
 export default class DataFormatterPlugin extends Plugin {
 	settings!: DataFormatterPluginSettings;
+	jsonFileManager!: JsonFileManager;
 
 	async onload() {
 		await this.loadSettings();
 
+		this.jsonFileManager = new JsonFileManager(
+			() => this.settings.path
+		)
+
 		this.addCommand({
 			id: 'format-published-notes',
 			name: 'Format published notes to specified file',
-			callback: () => {
-				
+			callback: async () => {
+				try {
+					await this.UpdateJSONFromNotes();
+					new Notice('JSON file saved');
+				} catch (e) {
+					console.error('DataFormatter: échec de la sauvegarde', e);
+					new Notice(`Erreur lors de la sauvegarde : ${e instanceof Error ? e.message : e}`);
+				}
 			}
  		});
 
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('dice', 'Sample', (_evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status bar text');
-
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-modal-simple',
-			name: 'Open modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			},
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'replace-selected',
-			name: 'Replace selected content',
-			editorCallback: (
-				editor: Editor,
-				_ctx: MarkdownView | MarkdownFileInfo,
-			) => {
-				editor.replaceSelection('Sample editor command');
-			},
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-modal-complex',
-			name: 'Open modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView =
-					this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-				return false;
-			},
-		});
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new DataFormatterSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(activeDocument, 'click', (_evt: MouseEvent) => {
-			
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(
-			window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000),
-		);
 	}
 
 	onunload() {}
@@ -102,25 +60,83 @@ export default class DataFormatterPlugin extends Plugin {
 			DEFAULT_SETTINGS,
 			(await this.loadData()) as Partial<DataFormatterPluginSettings>,
 		);
+
+		if (!this.settings.path) {
+			const base = this.getVaultBasePath();
+			this.settings.path = base ? path.join(base, 'export.json') : 'export.json';
+		}
+	}
+
+	private getVaultBasePath(): string {
+		const adapter = this.app.vault.adapter;
+		if (adapter instanceof FileSystemAdapter) {
+			return adapter.getBasePath();
+		}
+		return '';
 	}
 
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
+	
+	private async UpdateJSONFromNotes() {
+		const files = this.app.vault.getMarkdownFiles().filter((file) => {
+			const metadata = this.app.metadataCache.getFileCache(file);
+			return metadata?.frontmatter?.publish === true;
+		});
+
+		new Notice(`${files.length} notes trouvées`);
+
+		if (files.length === 0) return;
+
+		const notes = await Promise.all(files.map(async (file) => {
+			const content = await this.app.vault.read(file);
+			const metadata = this.app.metadataCache.getFileCache(file);
+
+			return {
+				id: slugify(file.basename),
+				title: file.basename,
+				wordCount: content.split(/\s+/).length,
+				contentMD: content,
+				contentHTML: await convertToHTML(content),
+				properties: metadata?.frontmatter ?? {},
+				links: metadata?.links?.map(l => l.link) ?? [],
+				lastUpdated: new Date(file.stat.mtime).toISOString()
+			}
+		}));
+
+		const data: JsonFileFormat = {
+			lastUpdated: new Date().toISOString(),
+			notesCount: notes.length,
+			notes: notes,
+		}
+
+		this.jsonFileManager.save(data);
+	}
 }
 
-class SampleModal extends Modal {
-	onOpen() {
-		const { contentEl } = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
+function slugify(str: string): string {
+	return str
+	.toLowerCase()
+	.normalize("NFD")
+	.replace(/[\u0300-\u036f]/g, "")  
+	.replace(/[^a-z0-9\s-]/g, "")      
+	.trim()
+	.replace(/\s+/g, "-");
 }
 
-class DataFormatter {
+function preprocessMarkdown(md: string): string {
+  return md
+    .replace(/^---[\s\S]*?---\n/, "")
+    .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, (_, link, alias) => {
+      return `[${alias}](/notes/${slugify(link)})`;
+    })
+    .replace(/\[\[([^\]]+)\]\]/g, (_, link) => {
+      return `[${link}](/notes/${slugify(link)})`;
+    });
+}
 
+async function convertToHTML(contentMd: string): Promise<string> {
+  const preprocessed = preprocessMarkdown(contentMd);
+  return await marked(preprocessed);
 }

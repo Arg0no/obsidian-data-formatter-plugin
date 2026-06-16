@@ -6,7 +6,7 @@ export interface DataFormatterPluginSettings {
 }
 
 export const DEFAULT_SETTINGS: DataFormatterPluginSettings = {
-	path: '.',
+	path: '',
 };
 
 export class DataFormatterSettingTab extends PluginSettingTab {
@@ -27,10 +27,12 @@ export class DataFormatterSettingTab extends PluginSettingTab {
 			.setDesc('Path for the json file')
 			.addText((text) => {
 				text
-					.setPlaceholder('Enter path')
+					.setPlaceholder('Enter path with file name')
 					.setValue(this.plugin.settings.path)
-					.onChange(async (value) => {
-						this.plugin.settings.path = value;
+					.onChange(async (newPath) => {
+						const oldPath = this.plugin.settings.path;
+						this.plugin.settings.path = newPath;
+						this.plugin.jsonFileManager.updatePath(oldPath, newPath);
 						await this.plugin.saveSettings();
 					})
 			})
