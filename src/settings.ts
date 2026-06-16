@@ -1,19 +1,19 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
-import MyPlugin from './main';
+import DataFormatterPlugin from './main';
 
-export interface MyPluginSettings {
-	mySetting: string;
+export interface DataFormatterPluginSettings {
+	path: string;
 }
 
-export const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default',
+export const DEFAULT_SETTINGS: DataFormatterPluginSettings = {
+	path: '.',
 };
 
-export class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+export class DataFormatterSettingTab extends PluginSettingTab {
+	plugin: DataFormatterPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
+	constructor(app: App, plugin: DataFormatterPlugin) {
+		super(app,plugin);
 		this.plugin = plugin;
 	}
 
@@ -23,16 +23,17 @@ export class SampleSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Settings #1')
-			.setDesc("It's a secret")
-			.addText((text) =>
+			.setName('Data path')
+			.setDesc('Path for the json file')
+			.addText((text) => {
 				text
-					.setPlaceholder('Enter your secret')
-					.setValue(this.plugin.settings.mySetting)
+					.setPlaceholder('Enter path')
+					.setValue(this.plugin.settings.path)
 					.onChange(async (value) => {
-						this.plugin.settings.mySetting = value;
+						this.plugin.settings.path = value;
 						await this.plugin.saveSettings();
-					}),
-			);
+					})
+			})
 	}
+	
 }

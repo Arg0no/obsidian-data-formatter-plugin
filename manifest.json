@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "data-formatter",
+	"name": "Data Formatter",
 	"version": "1.0.0",
 	"minAppVersion": "1.0.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"description": "Converts every published notes into a .json file",
+	"author": "Argono",
+	"authorUrl": "https://github.com/Arg0no/obsidian-data-formatter-plugin",
+	"fundingUrl": "",
+	"isDesktopOnly": true
 }
