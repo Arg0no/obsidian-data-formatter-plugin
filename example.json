@@ -1,0 +1,37 @@
+{
+    "lastUpdated":"AAAA-MM-DD",
+    "count":2,
+    "notes": [
+        {
+            "id":"rimbell",
+            "title":"Rimbell",
+            "wordCount":568,
+            "content-md": "",
+            "content-html": "",
+            "properties": {
+                "type": "lieu",
+                "parent": "terre-de-sarmelune"
+            },
+            "links": [
+                "cathedrale-d-aethern",
+                "ordris"
+            ],
+            "lastUpdated":"AAAA-MM-DD"
+        },
+        {
+            "id":"cathedrale-d'aethern",
+            "title":"Cathédrale d'Aethern",
+            "wordCount":126,
+            "content-md":"",
+            "content-html":"",
+            "properties":{
+                "type":"lieu",
+                "parent":"rimbell"
+            },
+            "links":[
+                "rimbell"
+            ],
+            "lastUpdated":"AAAA-MM-DD"
+        }
+    ]
+}

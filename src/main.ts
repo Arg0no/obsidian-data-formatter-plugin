@@ -85,7 +85,7 @@ export default class DataFormatterPlugin extends Plugin {
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
 		this.registerDomEvent(activeDocument, 'click', (_evt: MouseEvent) => {
-			new Notice('Click');
+			
 		});
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
