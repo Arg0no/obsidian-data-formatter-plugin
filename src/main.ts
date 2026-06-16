@@ -62,17 +62,16 @@ export default class DataFormatterPlugin extends Plugin {
 		);
 
 		if (!this.settings.path) {
-			const base = this.getVaultBasePath();
-			this.settings.path = base ? path.join(base, 'export.json') : 'export.json';
+			this.settings.path = this.getDefaultPath();
 		}
 	}
 
-	private getVaultBasePath(): string {
+	getDefaultPath(): string {
 		const adapter = this.app.vault.adapter;
 		if (adapter instanceof FileSystemAdapter) {
-			return adapter.getBasePath();
+			return path.join(adapter.getBasePath(), 'export.json');
 		}
-		return '';
+		return 'export.json';
 	}
 
 	async saveSettings() {

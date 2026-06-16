@@ -34,7 +34,20 @@ export class DataFormatterSettingTab extends PluginSettingTab {
 						this.plugin.settings.path = newPath;
 						this.plugin.jsonFileManager.updatePath(oldPath, newPath);
 						await this.plugin.saveSettings();
-					})
+					});
+			})
+			.addExtraButton((button) => {
+				button
+					.setIcon('rotate-ccw')
+					.setTooltip('Reset to default')
+					.onClick(async () => {
+						const oldPath = this.plugin.settings.path;
+						const defaultPath = this.plugin.getDefaultPath();
+						this.plugin.settings.path = defaultPath;
+						this.plugin.jsonFileManager.updatePath(oldPath, defaultPath);
+						await this.plugin.saveSettings();
+						this.display();
+					});
 			})
 	}
 	
